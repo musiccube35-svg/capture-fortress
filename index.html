@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no">
+  <meta name="theme-color" content="#07111c">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="鹵獲要塞">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="apple-touch-icon" href="icon-180.png">
+  <title>鹵獲要塞（仮）</title>
+  <style>
+    html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#07111c;color:#d8f8ff;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;touch-action:none;-webkit-user-select:none;user-select:none}
+    #unity-container{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:radial-gradient(circle at 50% 40%,#16384b 0,#07111c 58%,#03070b 100%)}
+    #unity-canvas{width:100%;height:100%;background:#07111c;outline:none}
+    #loading{position:absolute;left:10%;right:10%;top:46%;text-align:center;font-weight:700;letter-spacing:.08em;text-shadow:0 2px 8px #000}
+    #bar{height:10px;margin-top:14px;border:1px solid #55dff4;background:#081018;border-radius:8px;overflow:hidden}
+    #fill{width:0;height:100%;background:linear-gradient(90deg,#1fd6ea,#ffbe39)}
+    #rotate{display:none;position:absolute;z-index:4;inset:0;align-items:center;justify-content:center;padding:30px;text-align:center;font-size:20px;background:rgba(3,7,11,.94)}
+    #fullscreen{position:absolute;right:max(12px,env(safe-area-inset-right));top:max(12px,env(safe-area-inset-top));z-index:3;border:1px solid #55dff4;border-radius:8px;background:rgba(5,20,29,.72);color:#d8f8ff;padding:9px 12px;font-weight:700}
+    @media (orientation:portrait){#rotate{display:flex}}
+  </style>
+</head>
+<body>
+  <div id="unity-container">
+    <canvas id="unity-canvas" tabindex="-1"></canvas>
+    <div id="loading">鹵獲要塞を起動中<div id="bar"><div id="fill"></div></div></div>
+    <button id="fullscreen" type="button">全画面</button>
+    <div id="rotate">iPhoneを横向きにしてください</div>
+  </div>
+  <script>
+    const canvas=document.querySelector('#unity-canvas'),loading=document.querySelector('#loading'),fill=document.querySelector('#fill');
+    const buildUrl='Build', config={
+      dataUrl:buildUrl+'/WebGL.data',frameworkUrl:buildUrl+'/WebGL.framework.js',codeUrl:buildUrl+'/WebGL.wasm',
+      streamingAssetsUrl:'StreamingAssets',companyName:'PrototypeLab',productName:'Capture Fortress MVP',productVersion:'0.2.0'
+    };
+    const script=document.createElement('script');script.src=buildUrl+'/WebGL.loader.js';
+    script.onload=()=>createUnityInstance(canvas,config,p=>fill.style.width=(p*100)+'%').then(instance=>{
+      loading.style.display='none';document.querySelector('#fullscreen').onclick=()=>instance.SetFullscreen(1);
+    }).catch(message=>{loading.textContent='起動に失敗しました: '+message;});
+    document.body.appendChild(script);
+    document.addEventListener('touchmove',e=>e.preventDefault(),{passive:false});
+    if('serviceWorker' in navigator)window.addEventListener('load',()=>navigator.serviceWorker.register('./sw.js'));
+  </script>
+</body>
+</html>
